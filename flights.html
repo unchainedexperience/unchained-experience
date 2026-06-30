@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Booking | Unchained Experience</title>
+<meta name="description" content="Book domestic and international flights with Unchained Experience — Kenya-based travel company. Personal enquiry-based pricing for flights worldwide.">
+<link rel="canonical" href="https://unchainedexperience.vercel.app/flights.html">
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="nav__logo">
+      <img src="/assets/logo.jpg" alt="Unchained Experience logo">
+      <span class="nav__logo-text"><strong>Unchained Experience</strong><span>Adventure Without Boundaries</span></span>
+    </a>
+    <ul class="nav__links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about.html">About</a></li>
+      <li><a href="/flights.html" class="active">Flight Booking</a></li>
+      <li><a href="/gallery.html">Gallery</a></li>
+      <li><a href="/blog.html">Travel Tips</a></li>
+      <li><a href="/contact.html">Contact</a></li>
+      <li class="nav__cta"><a href="/contact.html" class="btn btn-primary btn-sm">Enquire Now</a></li>
+    </ul>
+    <button class="nav__hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="page-hero__bg" style="background-image:url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=80')"></div>
+  <div class="container page-hero__content">
+    <div class="breadcrumb"><a href="/">Home</a> / Flight Booking</div>
+    <span class="section-eyebrow">Flight Booking</span>
+    <h1>Fly Anywhere,<br>We'll Handle It</h1>
+    <p>Domestic hops to the Mara or Samburu, or international connections to Tanzania, Rwanda, Uganda and beyond — tell us your route.</p>
+  </div>
+</header>
+
+<section class="section section--ivory" style="padding-top:4rem;">
+  <div class="container">
+    <div class="flight-form-wrap" style="max-width:900px;margin:0 auto;">
+      <div class="flight-tabs">
+        <button class="flight-tab active" data-type="Domestic">Domestic Flights</button>
+        <button class="flight-tab" data-type="International">International Flights</button>
+        <button class="flight-tab" data-type="Round Trip">Round Trip</button>
+        <button class="flight-tab" data-type="One Way">One Way</button>
+      </div>
+      <form class="js-enquiry-form" id="flightForm">
+        <input type="hidden" id="tripType" name="tripType" value="Domestic">
+        <div class="flight-route">
+          <div class="form-group">
+            <label for="fromCity">Flying From</label>
+            <input type="text" id="fromCity" name="from" placeholder="e.g. Nairobi (NBO)" required>
+          </div>
+          <button type="button" class="flight-swap" aria-label="Swap cities">⇄</button>
+          <div class="form-group">
+            <label for="toCity">Flying To</label>
+            <input type="text" id="toCity" name="to" placeholder="e.g. Kigali (KGL)" required>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label for="depart">Departure Date</label><input type="date" id="depart" name="departureDate" required></div>
+          <div class="form-group"><label for="return">Return Date (optional)</label><input type="date" id="return" name="returnDate"></div>
+          <div class="form-group"><label for="passengers">Passengers</label><input type="number" id="passengers" name="passengers" min="1" value="1" required></div>
+          <div class="form-group"><label for="classType">Class</label>
+            <select id="classType" name="travelClass">
+              <option>Economy</option>
+              <option>Business</option>
+              <option>First Class</option>
+              <option>Not Sure / Advise Me</option>
+            </select>
+          </div>
+          <div class="form-group full"><label for="fname">Full Name</label><input type="text" id="fname" name="name" required></div>
+          <div class="form-group"><label for="femail">Email</label><input type="email" id="femail" name="email" required></div>
+          <div class="form-group"><label for="fphone">Phone / WhatsApp</label><input type="tel" id="fphone" name="phone" required></div>
+          <div class="form-group full"><label for="fnotes">Additional Notes</label><textarea id="fnotes" name="message" placeholder="Flexible dates, budget range, preferred airline, etc."></textarea></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:1.25rem;">Request Flight Quote</button>
+        <p class="form-note">We compare options across airlines and send you the best fit — no online prices, just a direct quote.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section section--dark">
+  <div class="container">
+    <div class="section-head">
+      <span class="section-eyebrow">Why Book Flights With Us</span>
+      <h2 style="color:var(--white)">One Team for Ground &amp; Air</h2>
+    </div>
+    <div class="why-flights">
+      <div class="flight-feature">
+        <div class="flight-feature__icon">🛫</div>
+        <div><h4>Domestic &amp; International</h4><p>From short Mara hops to long-haul international connections, all booked through one team.</p></div>
+      </div>
+      <div class="flight-feature">
+        <div class="flight-feature__icon">🧾</div>
+        <div><h4>Personal Quotes</h4><p>We compare fares for you and send a quote that fits your dates and budget — no inflated online listings.</p></div>
+      </div>
+      <div class="flight-feature">
+        <div class="flight-feature__icon">🔗</div>
+        <div><h4>Bundled With Safaris</h4><p>Pair your flight booking with a tailored safari itinerary for a single, seamless trip.</p></div>
+      </div>
+      <div class="flight-feature">
+        <div class="flight-feature__icon">📲</div>
+        <div><h4>Direct Support</h4><p>Reach a real person on WhatsApp or phone before, during, and after you book.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ivory">
+  <div class="container" style="text-align:center;max-width:640px;">
+    <span class="section-eyebrow">Prefer to Talk?</span>
+    <h2 style="margin-bottom:1rem;">Send Your Route on WhatsApp</h2>
+    <p style="color:var(--text-light);margin-bottom:2rem;">Fastest way to get a flight quote — message us your from/to cities and travel dates directly.</p>
+    <a href="https://wa.me/254750625490?text=Hi%2C%20I%27d%20like%20a%20flight%20quote.%20From%3A%20...%20To%3A%20...%20Dates%3A%20..." target="_blank" rel="noopener" class="btn btn-whatsapp">Message Us on WhatsApp</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <img src="/assets/logo.jpg" alt="Unchained Experience">
+        <p>Kenya-based tours, travel and flight booking company. Adventure without boundaries — nationally and internationally.</p>
+        <div class="social-row">
+          <a href="https://wa.me/254750625490" target="_blank" rel="noopener" class="social-link" aria-label="WhatsApp">💬</a>
+          <a href="mailto:official.unchainedexperience@gmail.com" class="social-link" aria-label="Email">✉️</a>
+          <a href="tel:+254750625490" class="social-link" aria-label="Call">📞</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h4>Explore</h4>
+        <ul><li><a href="/">Home</a></li><li><a href="/about.html">About Us</a></li><li><a href="/flights.html">Flight Booking</a></li><li><a href="/gallery.html">Gallery</a></li></ul>
+      </div>
+      <div class="footer__col">
+        <h4>Destinations</h4>
+        <ul><li><a href="/contact.html">Nairobi National Park</a></li><li><a href="/contact.html">Samburu</a></li><li><a href="/contact.html">Tanzania</a></li><li><a href="/contact.html">Rwanda</a></li></ul>
+      </div>
+      <div class="footer__col">
+        <h4>Contact</h4>
+        <ul><li><a href="tel:+254750625490">+254 750 625 490</a></li><li><a href="mailto:official.unchainedexperience@gmail.com">official.unchainedexperience@gmail.com</a></li><li><a href="/blog.html">Travel Tips</a></li><li><a href="/contact.html">Get In Touch</a></li></ul>
+      </div>
+    </div>
+    <div class="footer__bottom"><p>© 2026 Unchained Experience. All rights reserved.</p><p>Nairobi, Kenya</p></div>
+  </div>
+</footer>
+
+<a href="https://wa.me/254750625490?text=Hi%20Unchained%20Experience%2C%20I%27d%20like%20to%20enquire%20about%20a%20flight." target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">💬</a>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
