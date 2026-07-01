@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Unchained Experience</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  body { background: var(--navy); min-height: 100vh; }
+  .admin-wrap { max-width: 560px; margin: 0 auto; padding: 4rem 1.5rem; }
+  .admin-logo { display: flex; align-items: center; gap: 0.75rem; justify-content: center; margin-bottom: 2.5rem; }
+  .admin-logo img { height: 56px; filter: brightness(0) invert(1); }
+  .admin-card { background: var(--white); border-radius: var(--radius-lg); padding: 2.5rem; box-shadow: var(--shadow-lg); }
+  .admin-card h2 { color: var(--navy); margin-bottom: 0.5rem; }
+  .admin-card > p { color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .drop-zone {
+    border: 2px dashed var(--dust); border-radius: var(--radius-lg); padding: 2.5rem 1.5rem;
+    text-align: center; cursor: pointer; transition: var(--transition); background: var(--ivory);
+  }
+  .drop-zone.dragover { border-color: var(--gold); background: var(--dust-light); }
+  .drop-zone__icon { font-size: 2.2rem; margin-bottom: 0.75rem; }
+  .drop-zone p { color: var(--text-light); font-size: 0.88rem; }
+  .drop-zone input[type="file"] { display: none; }
+  .upload-queue { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .queue-item { display: flex; align-items: center; gap: 0.75rem; background: var(--ivory); border-radius: var(--radius); padding: 0.6rem 0.9rem; }
+  .queue-item img { width: 44px; height: 44px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+  .queue-item__info { flex: 1; min-width: 0; }
+  .queue-item__info input { width: 100%; border: 1px solid var(--dust-light); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.82rem; font-family: var(--ff-body); }
+  .queue-item__status { font-size: 0.75rem; color: var(--text-light); white-space: nowrap; }
+  .queue-item__status.success { color: #1a9e4a; }
+  .queue-item__status.error { color: #c0392b; }
+  .admin-actions { margin-top: 1.5rem; display: flex; gap: 0.75rem; }
+  .login-error { color: #c0392b; font-size: 0.85rem; margin-top: 0.75rem; display: none; }
+  .login-error.show { display: block; }
+  .logout-link { display: block; text-align: center; margin-top: 1.5rem; color: rgba(255,255,255,0.5); font-size: 0.82rem; }
+  .logout-link:hover { color: var(--white); }
+</style>
+</head>
+<body>
+
+<div class="admin-wrap">
+  <div class="admin-logo">
+    <img src="/assets/logo.jpg" alt="Unchained Experience">
+  </div>
+
+  <!-- LOGIN VIEW -->
+  <div class="admin-card" id="loginCard">
+    <h2>Admin Access</h2>
+    <p>Enter your password to manage gallery photos.</p>
+    <div class="form-group">
+      <label for="adminPassword">Password</label>
+      <input type="password" id="adminPassword" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary btn-block" style="margin-top:1.25rem;" id="loginBtn">Log In</button>
+    <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+  </div>
+
+  <!-- UPLOAD VIEW (hidden until logged in) -->
+  <div class="admin-card" id="uploadCard" style="display:none;">
+    <h2>Upload Gallery Photos</h2>
+    <p>Drag and drop photos below, add a caption, then upload. They'll appear on the public gallery automatically.</p>
+
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-zone__icon">📸</div>
+      <p><strong>Drag photos here</strong> or click to browse</p>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+
+    <div class="upload-queue" id="uploadQueue"></div>
+
+    <div class="admin-actions">
+      <button class="btn btn-primary btn-block" id="uploadAllBtn" style="display:none;">Upload All Photos</button>
+    </div>
+  </div>
+
+  <a href="#" class="logout-link" id="logoutLink" style="display:none;">Log out</a>
+</div>
+
+<script>
+const loginCard = document.getElementById('loginCard');
+const uploadCard = document.getElementById('uploadCard');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const passwordInput = document.getElementById('adminPassword');
+const logoutLink = document.getElementById('logoutLink');
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const uploadQueue = document.getElementById('uploadQueue');
+const uploadAllBtn = document.getElementById('uploadAllBtn');
+
+let sessionPassword = sessionStorage.getItem('admin_pw') || '';
+let queuedFiles = [];
+
+function showUploadView() {
+  loginCard.style.display = 'none';
+  uploadCard.style.display = 'block';
+  logoutLink.style.display = 'block';
+}
+
+if (sessionPassword) {
+  showUploadView();
+}
+
+loginBtn.addEventListener('click', async () => {
+  const pw = passwordInput.value;
+  loginBtn.textContent = 'Checking…';
+  loginBtn.disabled = true;
+  try {
+    const res = await fetch('/api/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    if (res.ok) {
+      sessionPassword = pw;
+      sessionStorage.setItem('admin_pw', pw);
+      loginError.classList.remove('show');
+      showUploadView();
+    } else {
+      loginError.classList.add('show');
+    }
+  } catch {
+    loginError.textContent = 'Connection error. Try again.';
+    loginError.classList.add('show');
+  }
+  loginBtn.textContent = 'Log In';
+  loginBtn.disabled = false;
+});
+
+passwordInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') loginBtn.click();
+});
+
+logoutLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  sessionStorage.removeItem('admin_pw');
+  location.reload();
+});
+
+// ——— Drag & drop ———
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+function handleFiles(fileList) {
+  Array.from(fileList).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const id = 'f' + Date.now() + Math.random().toString(36).slice(2, 7);
+    queuedFiles.push({ id, file, caption: '' });
+    renderQueueItem(id, file);
+  });
+  uploadAllBtn.style.display = queuedFiles.length ? 'flex' : 'none';
+}
+
+function renderQueueItem(id, file) {
+  const url = URL.createObjectURL(file);
+  const div = document.createElement('div');
+  div.className = 'queue-item';
+  div.id = id;
+  div.innerHTML = `
+    <img src="${url}" alt="">
+    <div class="queue-item__info">
+      <input type="text" placeholder="Caption (optional)" data-caption-for="${id}">
+    </div>
+    <span class="queue-item__status">Ready</span>
+  `;
+  uploadQueue.appendChild(div);
+  div.querySelector('input').addEventListener('input', (e) => {
+    const item = queuedFiles.find(f => f.id === id);
+    if (item) item.caption = e.target.value;
+  });
+}
+
+uploadAllBtn.addEventListener('click', async () => {
+  uploadAllBtn.disabled = true;
+  uploadAllBtn.textContent = 'Uploading…';
+
+  for (const item of queuedFiles) {
+    const statusEl = document.querySelector(`#${item.id} .queue-item__status`);
+    statusEl.textContent = 'Uploading…';
+    try {
+      const res = await fetch('/api/upload-photo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'X-Admin-Password': sessionPassword,
+          'X-Filename': encodeURIComponent(item.file.name),
+          'X-Caption': encodeURIComponent(item.caption || '')
+        },
+        body: item.file
+      });
+      if (res.ok) {
+        statusEl.textContent = '✅ Uploaded';
+        statusEl.classList.add('success');
+      } else {
+        const err = await res.json();
+        statusEl.textContent = '❌ ' + (err.error || 'Failed');
+        statusEl.classList.add('error');
+      }
+    } catch {
+      statusEl.textContent = '❌ Network error';
+      statusEl.classList.add('error');
+    }
+  }
+
+  uploadAllBtn.textContent = 'Upload All Photos';
+  uploadAllBtn.disabled = false;
+  queuedFiles = [];
+});
+</script>
+
+</body>
+</html>
