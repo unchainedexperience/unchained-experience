@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gallery | Unchained Experience</title>
 <meta name="description" content="Browse photos from Unchained Experience safaris across Kenya, Tanzania, and Rwanda — Nairobi National Park, Samburu, Mt. Kenya and more.">
-<link rel="canonical" href="https://unchainedexperience.vercel.app/gallery.html">
-<link rel="icon" type="image/jpeg" href="/assets/logo.png">
+<link rel="canonical" href="https://unchained-experience.vercel.app/gallery.html">
+<link rel="icon" type="image/png" href="/assets/logo.png">
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -36,43 +36,53 @@
     <div class="breadcrumb"><a href="/">Home</a> / Gallery</div>
     <span class="section-eyebrow">Gallery</span>
     <h1>Moments From the Road</h1>
-    <p>A look at the parks, peaks and people that make every Unchained Experience trip different. More photos from our own trips coming soon.</p>
+    <p>Real photos from real Unchained Experience trips — Kenya, Tanzania, Rwanda and beyond.</p>
   </div>
 </header>
 
-<section class="section section--ivory" style="padding-top:4rem;">
+<section class="section section--ivory" style="padding-top:3rem;">
   <div class="container">
+
+    <!-- Loading state -->
+    <div id="galleryLoading" style="text-align:center;padding:3rem 0;color:var(--text-light);">
+      <div style="font-size:2rem;margin-bottom:1rem;">📸</div>
+      <p>Loading photos…</p>
+    </div>
+
+    <!-- Dynamic gallery (Cloudinary uploads) -->
+    <div class="gallery-grid" id="cloudinaryGallery" style="display:none;"></div>
+
+    <!-- Divider shown only if both sections have content -->
+    <div id="galleryDivider" style="display:none;margin:2rem 0;border-top:1px solid var(--dust-light);"></div>
+
+    <!-- Static gallery (original photos) -->
     <div class="gallery-grid" id="galleryGrid">
       <div class="gallery-item tall">
-        <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=700&q=80" alt="Safari vehicle Maasai Mara">
+        <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=700&q=80" alt="Safari vehicle Maasai Mara" loading="lazy">
         <div class="gallery-item__overlay"><span>Nairobi National Park</span></div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1547970810-dc1eac37d174?w=500&q=80" alt="Lion Kenya">
-        <div class="gallery-item__overlay"><span>Wildlife Encounters</span></div>
+        <img src="/assets/namanga-border.jpg" alt="Unchained Experience group at Namanga border crossing" loading="lazy">
+        <div class="gallery-item__overlay"><span>Memorable times at Namanga — TLV Rooftop Lounge for swimming &amp; team building</span></div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1535941339077-2dd1c7963098?w=500&q=80" alt="Ol Jogi Conservancy">
+        <img src="https://images.unsplash.com/photo-1535941339077-2dd1c7963098?w=500&q=80" alt="Ol Jogi Conservancy" loading="lazy">
         <div class="gallery-item__overlay"><span>Ol Jogi Conservancy</span></div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1589182337358-2cb63099350c?w=500&q=80" alt="Mt Kenya forest">
+        <img src="https://images.unsplash.com/photo-1589182337358-2cb63099350c?w=500&q=80" alt="Mt Kenya forest" loading="lazy">
         <div class="gallery-item__overlay"><span>Mt. Kenya Castle Forest</span></div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=500&q=80" alt="Samburu elephants">
+        <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=500&q=80" alt="Samburu elephants" loading="lazy">
         <div class="gallery-item__overlay"><span>Samburu</span></div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=500&q=80" alt="Namanga border Tanzania">
-        <div class="gallery-item__overlay"><span>Namanga Border Crossing</span></div>
-      </div>
-      <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1612698093158-e07ac200d44e?w=500&q=80" alt="Kigali Rwanda">
+        <img src="https://images.unsplash.com/photo-1612698093158-e07ac200d44e?w=500&q=80" alt="Kigali Rwanda" loading="lazy">
         <div class="gallery-item__overlay"><span>Kigali, Rwanda</span></div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=500&q=80" alt="Kenya savanna sunset">
+        <img src="https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=500&q=80" alt="Kenya savanna sunset" loading="lazy">
         <div class="gallery-item__overlay"><span>Golden Hour, Kenya</span></div>
       </div>
     </div>
@@ -125,43 +135,52 @@
 
 <script src="/js/main.js"></script>
 <script>
-// Load dynamically uploaded photos and prepend them to the gallery grid
-(async function loadUploadedPhotos() {
+// Load photos from Cloudinary
+(async function loadCloudinaryPhotos() {
+  const CLOUD_NAME = 'ivelk4hq';
+  const loading = document.getElementById('galleryLoading');
+  const cloudGrid = document.getElementById('cloudinaryGallery');
+  const divider = document.getElementById('galleryDivider');
+
   try {
-    const res = await fetch('/api/list-photos');
-    if (!res.ok) return;
-    const { photos } = await res.json();
-    if (!photos || !photos.length) return;
+    const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/unchained_gallery.json`);
+    if (!res.ok) throw new Error('No photos yet');
+    const data = await res.json();
+    const resources = data.resources || [];
 
-    const grid = document.getElementById('galleryGrid');
-    const frag = document.createDocumentFragment();
+    if (resources.length === 0) throw new Error('Empty');
 
-    photos.forEach(photo => {
+    // Sort newest first
+    resources.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    resources.forEach(r => {
+      const caption = r.context?.custom?.caption || 'Unchained Experience';
+      const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_800,q_80,f_auto/${r.public_id}`;
+      const fullUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_1400,q_85,f_auto/${r.public_id}`;
+
       const item = document.createElement('div');
       item.className = 'gallery-item';
       item.innerHTML = `
-        <img src="${photo.url}" alt="${(photo.caption || 'Unchained Experience trip photo').replace(/"/g, '&quot;')}" loading="lazy">
-        <div class="gallery-item__overlay"><span>${photo.caption || 'Unchained Experience'}</span></div>
+        <img src="${url}" alt="${caption}" loading="lazy" data-full="${fullUrl}">
+        <div class="gallery-item__overlay"><span>${caption}</span></div>
       `;
-      frag.appendChild(item);
-    });
+      cloudGrid.appendChild(item);
 
-    grid.prepend(frag);
-
-    // Re-bind lightbox click handlers for newly added items
-    const lightbox = document.querySelector('.lightbox');
-    const lightboxImg = lightbox?.querySelector('img');
-    grid.querySelectorAll('.gallery-item').forEach(item => {
-      if (item.dataset.bound) return;
-      item.dataset.bound = 'true';
+      // Lightbox
+      const lightbox = document.querySelector('.lightbox');
+      const lightboxImg = lightbox?.querySelector('img');
       item.addEventListener('click', () => {
-        const img = item.querySelector('img');
-        if (lightboxImg) lightboxImg.src = img.src;
+        if (lightboxImg) lightboxImg.src = fullUrl;
         lightbox?.classList.add('open');
       });
     });
-  } catch (err) {
-    console.error('Failed to load uploaded photos:', err);
+
+    cloudGrid.style.display = 'grid';
+    divider.style.display = 'block';
+  } catch {
+    // No uploaded photos yet — just show static gallery
+  } finally {
+    loading.style.display = 'none';
   }
 })();
 </script>
